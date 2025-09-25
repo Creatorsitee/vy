@@ -1,0 +1,2809 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Beta Pro - by oji</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #1f2937;
+            --accent: #10b981;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .hidden { display: none !important; }
+        
+        .view { 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .card { 
+            background-color: rgba(30, 41, 59, 0.8); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(79, 70, 229, 0.3);
+            border-left: 4px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modern-progress {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .modern-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #4f46e5);
+            background-size: 200% 100%;
+            border-radius: 4px;
+            animation: shimmer 2s infinite;
+            transition: width 0.3s ease;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .pages-building-modern {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(90deg, #1e293b, #334155, #1e293b);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            border: 1px solid rgba(79, 70, 229, 0.3);
+        }
+        
+        .pages-building-modern i {
+            margin-right: 8px;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        .loader { 
+            width: 50px; 
+            height: 50px; 
+            border: 4px solid var(--primary); 
+            border-bottom-color: transparent; 
+            border-radius: 50%; 
+            display: inline-block; 
+            box-sizing: border-box; 
+            animation: rotation 1s linear infinite; 
+        }
+        
+        @keyframes rotation { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        .social-icon { 
+            transition: all 0.2s; 
+        }
+        
+        .social-icon:hover { 
+            transform: scale(1.2); 
+            color: white !important;
+        }
+        
+        .modal-enter { 
+            animation: fadeIn 0.3s ease-out forwards; 
+        }
+        
+        .modal-leave { 
+            animation: fadeOut 0.3s ease-in forwards; 
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: scale(0.95) translateY(-10px); } 
+            to { opacity: 1; transform: scale(1) translateY(0); } 
+        }
+        
+        @keyframes fadeOut { 
+            from { opacity: 1; transform: scale(1) translateY(0); } 
+            to { opacity: 0; transform: scale(0.95) translateY(-10px); } 
+        }
+        
+        .file-to-extract-item.selected { 
+            background-color: var(--primary); 
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-hover);
+        }
+        
+        .drop-zone-highlight {
+            background-color: rgba(79, 70, 229, 0.2);
+            border: 2px dashed var(--primary);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #374151;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .file-preview {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .file-item:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        
+        .toast-enter {
+            animation: toastIn 0.3s ease-out forwards;
+        }
+        
+        .toast-exit {
+            animation: toastOut 0.3s ease-in forwards;
+        }
+        
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
+        }
+        
+        .tab-button {
+            transition: all 0.2s;
+        }
+        
+        .tab-button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #374151;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-building {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-built {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-errored {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .pages-building {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #4f46e5);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+            color: white;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            transform: translateX(10px);
+        }
+        
+        .file-item:hover .file-actions {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .file-action-btn {
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .file-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .file-action-rename {
+            background-color: #3b82f6;
+        }
+        
+        .file-action-rename:hover {
+            background-color: #2563eb;
+        }
+        
+        .file-action-delete {
+            background-color: #ef4444;
+        }
+        
+        .file-action-delete:hover {
+            background-color: #dc2626;
+        }
+        
+        .file-action-view {
+            background-color: #10b981;
+        }
+        
+        .file-action-view:hover {
+            background-color: #059669;
+        }
+        
+        .repo-name-status {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+        
+        .repo-name-available {
+            color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        
+        .repo-name-taken {
+            color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        
+        .repo-name-checking {
+            color: #f59e0b;
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+        
+        .disable-pages-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .disable-pages-btn:hover {
+            background-color: #dc2626;
+        }
+        
+        @media (max-width: 640px) {
+            .view {
+                padding: 0.5rem;
+                justify-content: flex-start;
+                padding-top: 1.5rem;
+            }
+            
+            .card {
+                padding: 1.25rem;
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            .file-preview {
+                max-height: 150px;
+            }
+            
+            .tab-button {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.25rem;
+            }
+            
+            header.flex {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .grid-cols-1 {
+                grid-template-columns: 1fr;
+            }
+            
+            .md\:grid-cols-2, .md\:grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .flex-col-mobile {
+                flex-direction: column;
+            }
+            
+            .gap-2-mobile {
+                gap: 0.5rem;
+            }
+            
+            .text-sm-mobile {
+                font-size: 0.875rem;
+            }
+            
+            .text-base-mobile {
+                font-size: 1rem;
+            }
+            
+            .hidden-mobile {
+                display: none;
+            }
+            
+            .w-full-mobile {
+                width: 100%;
+            }
+            
+            .max-w-md-mobile {
+                max-width: 100%;
+            }
+            
+            .p-4-mobile {
+                padding: 1rem;
+            }
+            
+            .p-6-mobile {
+                padding: 1.25rem;
+            }
+            
+            .mobile-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(30, 41, 59, 0.95);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 0.5rem;
+                z-index: 40;
+                display: flex;
+                justify-content: space-around;
+            }
+            
+            .mobile-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 0.5rem;
+                color: #9ca3af;
+                font-size: 0.75rem;
+                transition: all 0.2s;
+            }
+            
+            .mobile-nav-item.active {
+                color: var(--primary);
+            }
+            
+            .mobile-nav-item i {
+                font-size: 1.25rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            #dashboard-view .max-w-6xl {
+                padding-bottom: 4rem;
+            }
+            
+            .file-actions {
+                opacity: 1;
+                transform: none;
+            }
+            
+            .file-action-btn {
+                padding: 4px 8px;
+                min-width: 28px;
+                height: 28px;
+            }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .md\:grid-cols-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .lg\:grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .mobile-nav {
+                display: none;
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            .mobile-nav {
+                display: none;
+            }
+        }
+        
+        .focus-visible:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .file-item-highlight {
+            animation: highlight 1.5s ease;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: rgba(79, 70, 229, 0.1); }
+            100% { background-color: transparent; }
+        }
+        
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-loading {
+            position: relative;
+            color: transparent;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-right-color: transparent;
+            animation: rotation 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <div class="absolute inset-0 -z-10">
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-indigo-900"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMzNzQxNTEiIHN0cm9rZS13aWR0aD0iMiI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMjgiLz48L2c+PC9zdmc+')] opacity-20"></div>
+    </div>
+
+    <main id="login-view" class="view">
+        <div class="card p-8 md:p-10 rounded-2xl w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl shadow-lg mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.91 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">GitHub Beta Pro</h1>
+                <p class="text-gray-400">Upload file apa saja & extract Zip, Create Website dan buat repositori baru langsung ke GitHub Anda dengan mudah.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <button id="login-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-base inline-flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-[1.02] focus-visible">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.91 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+                    </svg>
+                    Login dengan GitHub
+                </button>
+                
+                <div class="relative flex items-center my-6">
+                    <div class="flex-grow border-t border-gray-700"></div>
+                    <span class="flex-shrink mx-4 text-gray-500 text-sm">atau</span>
+                    <div class="flex-grow border-t border-gray-700"></div>
+                </div>
+                
+                <button id="pat-login-btn" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-base inline-flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-[1.02] focus-visible">
+                    <i class="fas fa-key"></i>
+                    Gunakan token PAT
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dashboard View -->
+    <main id="dashboard-view" class="view hidden w-full">
+        <div class="w-full max-w-6xl mx-auto">
+            <header class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-indigo-600 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.91 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold text-white">GitHub Beta Pro</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-indigo-500" alt="Avatar">
+                    <span id="user-name" class="text-gray-300 font-medium text-sm"></span>
+                </div>
+            </header>
+            
+            <!-- Desktop Tab Navigation -->
+            <div class="hidden sm:flex mb-6 bg-gray-800 p-1 rounded-lg">
+                <button id="upload-tab" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md active">Upload Files</button>
+                <button id="pages-tab" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md">Create Website</button>
+                <button id="browse-tab" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md">Browse Repository</button>
+                <button id="settings-tab" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md">Settings</button>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="mobile-nav sm:hidden">
+                <button id="mobile-upload-tab" class="mobile-nav-item active">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload Files</span>
+                </button>
+                <button id="mobile-pages-tab" class="mobile-nav-item">
+                    <i class="fas fa-globe"></i>
+                    <span>Buat Website</span>
+                </button>
+                <button id="mobile-browse-tab" class="mobile-nav-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Repositori</span>
+                </button>
+                <button id="mobile-settings-tab" class="mobile-nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </button>
+            </div>
+            
+            <!-- Tab Content -->
+            <div id="tab-content">
+                <!-- Upload Tab -->
+                <div id="upload-tab-content" class="tab-pane active">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- File Upload Section -->
+                        <div class="card rounded-2xl p-6 lg:col-span-2">
+                            <h2 class="text-xl font-bold text-white mb-4">Upload Files</h2>
+                            
+                            <input type="file" id="file-input" class="hidden" multiple>
+                            <div id="drop-zone" class="border-2 border-dashed border-gray-600 rounded-lg p-6 md:p-8 text-center cursor-pointer transition-all duration-200 focus-visible">
+                                <div class="mx-auto w-12 h-12 md:w-16 md:h-16 mb-4 text-gray-400">
+                                    <i class="fas fa-cloud-upload-alt text-3xl md:text-4xl"></i>
+                                </div>
+                                <p id="drop-zone-text" class="text-gray-300 text-base md:text-lg font-medium">UPLOAD FILES / ZIP</p>
+                                <p class="text-gray-400 text-sm mt-1">Seret & jatuhkan file di sini, atau klik untuk memilih</p>
+                                <p class="text-gray-500 text-xs mt-2">Maksimal 25 file (100MB total)</p>
+                            </div>
+                            
+                            <div id="file-preview" class="mt-4 file-preview hidden">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-gray-300 font-medium">File dipilih:</h3>
+                                    <button id="clear-files-btn" class="text-red-400 hover:text-red-300 text-sm flex items-center gap-1 focus-visible">
+                                        <i class="fas fa-times"></i> Hapus semua
+                                    </button>
+                                </div>
+                                <div id="file-list" class="space-y-2"></div>
+                            </div>
+                            
+                            <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                                <button id="start-upload-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-5 rounded-lg text-base transition disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible" disabled>
+                                    <i class="fas fa-upload"></i> Upload Files
+                                </button>
+                                <button id="create-repo-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-5 rounded-lg text-base transition flex items-center justify-center gap-2 focus-visible mt-2 sm:mt-0">
+                                    <i class="fas fa-plus"></i> Buat Repositori Baru
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Section -->
+                        <div class="space-y-6">
+                            <!-- User Info Card -->
+                            <div class="card rounded-2xl p-5">
+                                <h3 class="text-lg font-bold text-white mb-3">Detail akun Anda</h3>
+                                <div class="flex items-center gap-3 mb-4">
+                                    <img id="info-user-avatar" class="w-12 h-12 rounded-full border-2 border-indigo-500" alt="Avatar">
+                                    <div>
+                                        <p id="info-user-name" class="text-white font-medium"></p>
+                                        <p id="info-user-login" class="text-gray-400 text-sm"></p>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-400 space-y-1">
+                                    <p class="flex justify-between"><span>Email:</span> <span id="user-email" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Lokasi:</span> <span id="user-location" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Perusahaan:</span> <span id="user-company" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Blog:</span> <span id="user-blog" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Twitter:</span> <span id="user-twitter" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Bergabung:</span> <span id="user-created" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Plan:</span> <span id="user-plan" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Repositori:</span> <span id="user-repos" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Pengikut:</span> <span id="user-followers" class="text-gray-300">-</span></p>
+                                    <p class="flex justify-between"><span>Diikuti:</span> <span id="user-following" class="text-gray-300">-</span></p>
+                                </div>
+                            </div>
+                            
+                            <!-- Stats Card -->
+                            <div class="card rounded-2xl p-5">
+                                <h3 class="text-lg font-bold text-white mb-3">Statistik Upload</h3>
+                                <div class="text-xs text-gray-400 space-y-2">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span>Upload hari ini:</span>
+                                            <span id="today-upload-count" class="text-gray-300">0 files</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div id="today-progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span>Total upload:</span>
+                                            <span id="total-upload-count" class="text-gray-300">0 files</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div id="total-progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                
+                <!-- Browse Tab -->
+                <div id="browse-tab-content" class="tab-pane hidden">
+                    <div class="card rounded-2xl p-6">
+                        <h2 class="text-xl font-bold text-white mb-4">Management Repositori</h2>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 mb-6">
+                            <div class="flex-1">
+                                <label class="block text-gray-300 text-sm font-medium mb-2">Pilih Repositori</label>
+                                <select id="browse-repo-select" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible">
+                                    <option value="">Loading repositori...</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-gray-300 text-sm font-medium mb-2">Pilih Branch</label>
+                                <select id="browse-branch-select" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible">
+                                    <option value="main">main</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end gap-2">
+                                <button id="refresh-browse-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition h-[42px] focus-visible">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button id="rename-repo-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition h-[42px] focus-visible">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button id="delete-repo-btn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition h-[42px] focus-visible">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-white">Daftar File</h3>
+                                <div class="text-sm text-gray-400" id="browse-info"></div>
+                            </div>
+                            <div id="browse-content" class="max-h-96 overflow-y-auto">
+                                <p class="text-gray-400 text-center py-8">Pilih repositori untuk menelusuri file</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- GitHub Pages Tab -->
+                <div id="pages-tab-content" class="tab-pane hidden">
+                    <div class="card rounded-2xl p-6">
+                        <h2 class="text-xl font-bold text-white mb-4">Create Website</h2>
+                        <p class="text-gray-400 mb-6">Kelola files anda untuk membuat website dari repositori Anda.</p>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 mb-6">
+                            <div class="flex-1">
+                                <label class="block text-gray-300 text-sm font-medium mb-2">Pilih Repositori</label>
+                                <select id="pages-repo-select" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible">
+                                    <option value="">Loading repositori...</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button id="refresh-pages-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition h-[42px] focus-visible">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="pages-status-container" class="hidden bg-gray-800 rounded-lg p-4 mb-6">
+                            <h3 class="text-lg font-medium text-white mb-3">Status website</h3>
+                            <div class="flex flex-wrap items-center gap-4 mb-4">
+                                <div id="pages-status-badge" class="status-badge status-building">
+                                    <i class="fas fa-sync-alt fa-spin mr-1"></i>
+                                    <span id="pages-status-text">Loading...</span>
+                                </div>
+                                <div id="pages-building-info" class="hidden">
+                                    <div class="pages-building-modern">
+                                        <i class="fas fa-spinner"></i>
+                                        <span>building your site, please wait.</span>
+                                    </div>
+                                </div>
+                                <div id="pages-url-container" class="hidden">
+                                    <span class="text-gray-400 mr-2">URL:</span>
+                                    <a id="pages-url" href="#" target="_blank" class="text-indigo-400 hover:text-indigo-300 break-all"></a>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h4 class="text-gray-300 text-sm font-medium mb-2">Konfigurasi Sumber</h4>
+                                    <div class="flex flex-col sm:flex-row gap-2">
+                                        <select id="pages-branch-select" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg py-1 px-2 text-white text-sm focus-visible">
+                                            <option value="main">main</option>
+                                            <option value="gh-pages">gh-pages</option>
+                                        </select>
+                                        <select id="pages-folder-select" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg py-1 px-2 text-white text-sm focus-visible">
+                                            <option value="/">/(root)</option>
+                                            <option value="/docs">/docs</option>
+                                        </select>
+                                        <button id="update-pages-source-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1 px-2 rounded-lg text-sm transition focus-visible">
+                                            <i class="fas fa-save"></i> <span class="hidden sm:inline">Simpan</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-gray-300 text-sm font-medium mb-2">Custom Domain</h4>
+                                    <div class="flex flex-col sm:flex-row gap-2">
+                                        <input type="text" id="pages-custom-domain" placeholder="example.com" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg py-1 px-2 text-white text-sm focus-visible">
+                                        <button id="update-pages-domain-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1 px-2 rounded-lg text-sm transition focus-visible">
+                                            <i class="fas fa-save"></i> <span class="hidden sm:inline">Simpan</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tombol Disable Pages -->
+                            <div class="mt-4 pt-4 border-t border-gray-700">
+                                <button id="disable-pages-btn" class="disable-pages-btn text-white font-medium py-1 px-10 rounded-lg transition focus-visible">
+                                    <i class="fas fa-ban mr-1"></i> Hapus website ini ?
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="pages-not-configured" class="bg-gray-800 rounded-lg p-6 text-center hidden">
+                            <div class="mx-auto w-16 h-16 mb-4 text-gray-400">
+                                <i class="fas fa-globe text-4xl"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-white mb-2">Website Belum Dibuat</h3>
+                            <p class="text-gray-400 mb-4">Aktifkan  repositori ini untuk membuat website.</p>
+                            <button id="enable-pages-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition focus-visible">
+                                <i class="fas fa-plus mr-1"></i> Create Website
+                            </button>
+                        </div>
+                        
+                        <!-- Spinner menggantikan dot loader -->
+                        <div id="pages-loading" class="bg-gray-800 rounded-lg p-6 text-center">
+                            <div class="spinner mx-auto"></div>
+                            <p class="text-gray-400 mt-4">Memuat informasi Website...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="settings-tab-content" class="tab-pane hidden">
+                    <div class="card rounded-2xl p-6">
+                        <h2 class="text-xl font-bold text-white mb-4">Pengaturan</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-white mb-3">Informasi Aplikasi</h3>
+                                
+                                <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                            <i class="fab fa-github"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-white font-medium">GitHub Uploader Beta Pro</p>
+                                            <p class="text-gray-400 text-sm">by oji</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-xs text-gray-400 space-y-2">
+                                        <p class="flex justify-between">
+                                            <span>Versi:</span>
+                                            <span class="text-gray-300">Beta.1.2.0</span>
+                                        </p>
+                                        <p class="flex justify-between">
+                                            <span>Status:</span>
+                                            <span class="text-green-400">Aktif</span>
+                                        </p>
+                                        <p class="flex justify-between">
+                                            <span>Terakhir diperbarui:</span>
+                                            <span class="text-gray-300">22 Sep 2025</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-medium text-white mb-3">Pengaturan Dasar</h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="default-branch" class="block text-gray-300 text-sm font-medium mb-2">Default Branch</label>
+                                        <input type="text" id="default-branch" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible" value="main">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="commit-message" class="block text-gray-300 text-sm font-medium mb-2">Pesan Commit Default</label>
+                                        <input type="text" id="commit-message" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible" value="Upload file via GitHub beta Pro by oji">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-gray-700">
+                            <button id="logout-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition focus-visible">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal Container -->
+    <div id="modal-container" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    </div>
+    
+    <!-- Uploading View -->
+    <div id="uploading-view" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="card w-full max-w-md rounded-2xl border border-gray-700 p-8 shadow-2xl text-center">
+            <div class="spinner mx-auto"></div>
+            <p id="upload-status-text" class="text-lg font-semibold text-white mt-5 mb-4">Mengupload file...</p>
+            
+            <div class="mb-6">
+                <div class="flex justify-between text-sm text-gray-400 mb-1">
+                    <span id="upload-progress-text">0%</span>
+                    <span id="upload-count-text">0/0 files</span>
+                </div>
+                <div class="modern-progress">
+                    <div id="upload-progress-bar" class="modern-progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-5">
+                <p class="text-xs text-gray-400">Hai! Nama saya oji, pengembang web ini.</p>
+                <p class="text-xs text-gray-400 mb-3">Tolong gunakan dengan baik ya!</p>
+                <div class="flex justify-center items-center gap-4">
+                    <a href="https://github.com/Creatorsitee" target="_blank" class="social-icon text-gray-400 hover:text-white" title="GitHub">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="#" target="_blank" class="social-icon text-gray-400 hover:text-white" title="TikTok">
+                        <i class="fab fa-tiktok text-xl"></i>
+                    </a>
+                    <a href="#" target="_blank" class="social-icon text-gray-400 hover:text-white" title="YouTube">
+                        <i class="fab fa-youtube text-xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-5 right-5 card border border-gray-700 py-3 px-4 rounded-lg shadow-lg text-white text-sm max-w-sm z-50">
+        <div class="flex items-start gap-3">
+            <div id="toast-icon"></div>
+            <p id="toast-message" class="flex-1"></p>
+            <button id="toast-close" class="text-gray-400 hover:text-white focus-visible">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const GITHUB_CLIENT_ID = 'Ov23liloqyMbHnJq8ABp'; 
+            const MIN_ANIMATION_TIME = 5000;
+            const MAX_FILE_COUNT = 25;
+            const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB
+
+            // --- State Global ---
+            let accessToken = null;
+            let selectedFiles = [];
+            let selectedRepo = '';
+            let selectedBranch = 'main';
+            let targetFolder = '';
+            let filesToExtract = [];
+            let isRepoInitiallyEmpty = false;
+            let userData = null;
+            let uploadStats = {
+                today: 0,
+                total: 0
+            };
+            let currentBrowsePath = '';
+            
+            let pagesBuildingTimeout = null;
+            let pagesPollingInterval = null;
+            
+            const loadStats = () => {
+                const today = new Date().toDateString();
+                const stats = JSON.parse(localStorage.getItem('upload_stats') || '{}');
+                
+                if (stats.date === today) {
+                    uploadStats.today = stats.today || 0;
+                } else {
+                    uploadStats.today = 0;
+                }
+                
+                uploadStats.total = stats.total || 0;
+                
+                updateStatsDisplay();
+            };
+            
+            const saveStats = () => {
+                const today = new Date().toDateString();
+                const stats = {
+                    date: today,
+                    today: uploadStats.today,
+                    total: uploadStats.total
+                };
+                
+                localStorage.setItem('upload_stats', JSON.stringify(stats));
+                updateStatsDisplay();
+            };
+            
+            const updateStatsDisplay = () => {
+                document.getElementById('today-upload-count').textContent = `${uploadStats.today} files`;
+                document.getElementById('total-upload-count').textContent = `${uploadStats.total} files`;
+                
+                document.getElementById('today-progress-bar').style.width = `${Math.min(uploadStats.today / 10 * 100, 100)}%`;
+                document.getElementById('total-progress-bar').style.width = `${Math.min(uploadStats.total / 50 * 100, 100)}%`;
+            };
+
+            const views = {
+                login: document.getElementById('login-view'),
+                dashboard: document.getElementById('dashboard-view'),
+                modalContainer: document.getElementById('modal-container'),
+                uploading: document.getElementById('uploading-view'),
+            };
+            
+            const tabPanes = {
+                upload: document.getElementById('upload-tab-content'),
+                browse: document.getElementById('browse-tab-content'),
+                pages: document.getElementById('pages-tab-content'),
+                settings: document.getElementById('settings-tab-content')
+            };
+            
+            const userElements = { 
+                name: document.getElementById('user-name'), 
+                avatar: document.getElementById('user-avatar'),
+                infoName: document.getElementById('info-user-name'),
+                infoLogin: document.getElementById('info-user-login'),
+                infoAvatar: document.getElementById('info-user-avatar'),
+                email: document.getElementById('user-email'),
+                location: document.getElementById('user-location'),
+                company: document.getElementById('user-company'),
+                blog: document.getElementById('user-blog'),
+                twitter: document.getElementById('user-twitter'),
+                created: document.getElementById('user-created'),
+                plan: document.getElementById('user-plan'),
+                repos: document.getElementById('user-repos'),
+                followers: document.getElementById('user-followers'),
+                following: document.getElementById('user-following')
+            };
+            
+            const buttons = { 
+                login: document.getElementById('login-btn'), 
+                patLogin: document.getElementById('pat-login-btn'),
+                logout: document.getElementById('logout-btn'), 
+                startUpload: document.getElementById('start-upload-btn'),
+                clearFiles: document.getElementById('clear-files-btn'),
+                createRepo: document.getElementById('create-repo-btn'),
+                refreshBrowse: document.getElementById('refresh-browse-btn'),
+                renameRepo: document.getElementById('rename-repo-btn'),
+                deleteRepo: document.getElementById('delete-repo-btn'),
+                refreshPages: document.getElementById('refresh-pages-btn'),
+                enablePages: document.getElementById('enable-pages-btn'),
+                updatePagesSource: document.getElementById('update-pages-source-btn'),
+                updatePagesDomain: document.getElementById('update-pages-domain-btn'),
+                disablePages: document.getElementById('disable-pages-btn')
+            };
+            
+            const tabs = {
+                upload: document.getElementById('upload-tab'),
+                browse: document.getElementById('browse-tab'),
+                pages: document.getElementById('pages-tab'),
+                settings: document.getElementById('settings-tab')
+            };
+            
+            // Mobile tabs
+            const mobileTabs = {
+                upload: document.getElementById('mobile-upload-tab'),
+                browse: document.getElementById('mobile-browse-tab'),
+                pages: document.getElementById('mobile-pages-tab'),
+                settings: document.getElementById('mobile-settings-tab')
+            };
+            
+            const fileInput = document.getElementById('file-input');
+            const dropZone = document.getElementById('drop-zone');
+            const dropZoneText = document.getElementById('drop-zone-text');
+            const fileList = document.getElementById('file-list');
+            const filePreview = document.getElementById('file-preview');
+            const uploadStatusText = document.getElementById('upload-status-text');
+            const uploadProgressText = document.getElementById('upload-progress-text');
+            const uploadCountText = document.getElementById('upload-count-text');
+            const uploadProgressBar = document.getElementById('upload-progress-bar');
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastMessage = document.getElementById('toast-message');
+            const toastClose = document.getElementById('toast-close');
+            
+            // Browse elements
+            const browseRepoSelect = document.getElementById('browse-repo-select');
+            const browseBranchSelect = document.getElementById('browse-branch-select');
+            const browseContent = document.getElementById('browse-content');
+            const browseInfo = document.getElementById('browse-info');
+
+            // GitHub Pages elements
+            const pagesRepoSelect = document.getElementById('pages-repo-select');
+            const pagesStatusContainer = document.getElementById('pages-status-container');
+            const pagesNotConfigured = document.getElementById('pages-not-configured');
+            const pagesLoading = document.getElementById('pages-loading');
+            const pagesStatusBadge = document.getElementById('pages-status-badge');
+            const pagesStatusText = document.getElementById('pages-status-text');
+            const pagesUrlContainer = document.getElementById('pages-url-container');
+            const pagesUrl = document.getElementById('pages-url');
+            const pagesBranchSelect = document.getElementById('pages-branch-select');
+            const pagesFolderSelect = document.getElementById('pages-folder-select');
+            const pagesCustomDomain = document.getElementById('pages-custom-domain');
+            const pagesBuildingInfo = document.getElementById('pages-building-info');
+
+            // Helper functions
+            const formatFileSize = (bytes) => {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            };
+
+            const showView = (viewName) => {
+                Object.values(views).forEach(view => view.classList.add('hidden'));
+                if (views[viewName]) views[viewName].classList.remove('hidden');
+            };
+            
+            const showTab = (tabName) => {
+                Object.values(tabPanes).forEach(tab => tab.classList.add('hidden'));
+                Object.values(tabs).forEach(tab => tab.classList.remove('active'));
+                Object.values(mobileTabs).forEach(tab => tab.classList.remove('active'));
+                
+                if (tabPanes[tabName]) tabPanes[tabName].classList.remove('hidden');
+                if (tabs[tabName]) tabs[tabName].classList.add('active');
+                if (mobileTabs[tabName]) mobileTabs[tabName].classList.add('active');
+                
+                if (tabName === 'pages') {
+                    loadRepositoriesForPages();
+                }
+                
+                if (tabName === 'browse') {
+                    loadRepositoriesForBrowse();
+                }
+            };
+            
+            const showModal = (modalHtml) => {
+                views.modalContainer.innerHTML = modalHtml;
+                showView('modalContainer');
+                const modalCard = views.modalContainer.querySelector('.card');
+                if (modalCard) modalCard.classList.add('modal-enter');
+                
+                const focusableElements = views.modalContainer.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (focusableElements.length > 0) {
+                    focusableElements[0].focus();
+                }
+            };
+
+            const closeModal = () => {
+                const modalCard = views.modalContainer.querySelector('.card');
+                if (modalCard) {
+                    modalCard.classList.remove('modal-enter');
+                    modalCard.classList.add('modal-leave');
+                    setTimeout(() => {
+                        views.modalContainer.innerHTML = '';
+                        showView('dashboard');
+                    }, 300);
+                } else {
+                    showView('dashboard');
+                }
+            };
+
+            const showToast = (message, type = 'info') => {
+                toast.classList.remove('bg-green-500', 'bg-red-500', 'bg-blue-500', 'bg-yellow-500');
+                
+                let iconClass, bgColor;
+                switch(type) {
+                    case 'success':
+                        iconClass = 'fas fa-check-circle';
+                        bgColor = 'bg-green-500';
+                        break;
+                    case 'error':
+                        iconClass = 'fas fa-exclamation-circle';
+                        bgColor = 'bg-red-500';
+                        break;
+                    case 'warning':
+                        iconClass = 'fas fa-exclamation-triangle';
+                        bgColor = 'bg-yellow-500';
+                        break;
+                    default:
+                        iconClass = 'fas fa-info-circle';
+                        bgColor = 'bg-blue-500';
+                }
+                
+                toastIcon.innerHTML = `<i class="${iconClass} mt-0.5"></i>`;
+                toast.classList.add(bgColor);
+                toastMessage.textContent = message;
+                
+                toast.classList.remove('hidden');
+                toast.classList.add('toast-enter');
+                
+                // Auto hide after 4 seconds
+                setTimeout(() => hideToast(), 4000);
+            };
+
+            const hideToast = () => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-exit');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('toast-exit');
+                }, 300);
+            };
+
+            const apiCall = async (endpoint, options = {}) => {
+                if (!accessToken) throw new Error("Access token is missing.");
+                
+                const headers = { 
+                    ...options.headers, 
+                    'Authorization': `Bearer ${accessToken}`, 
+                    'Accept': 'application/vnd.github.v3+json' 
+                };
+                
+                const response = await fetch(`https://api.github.com${endpoint}`, { ...options, headers });
+                if (!response.ok) {
+                    if (response.status === 401) handleLogout();
+                    const errorData = await response.json().catch(() => ({}));
+                    throw Object.assign(new Error(errorData.message || `GitHub API Error: ${response.status}`), { status: response.status });
+                }
+                return response.json();
+            };
+
+            const handleLogin = () => {
+                const redirectUri = `${window.location.origin}/api/callback`;
+                const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo,user&redirect_uri=${redirectUri}`;
+                window.location.href = authUrl;
+            };
+            
+            const handlePatLogin = () => {
+                const patModal = `
+                    <div class="card w-full max-w-md rounded-2xl border border-gray-700 p-6 shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-white">Login dengan PAT</h2>
+                            <button onclick="closeModal()" class="text-gray-400 text-2xl font-bold hover:text-white transition focus-visible">&times;</button>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">
+                            Masukkan Personal Access Token GitHub Anda. Pastikan token memiliki izin <code class="bg-gray-800 px-1 py-0.5 rounded">repo</code>.
+                        </p>
+                        <div class="mb-4">
+                            <label for="pat-input" class="block text-gray-300 text-sm font-medium mb-2">Personal Access Token</label>
+                            <input type="password" id="pat-input" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible" placeholder="ghp_xxxxx/github_pat_xxxxx">
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="closeModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition focus-visible">Batal</button>
+                            <button id="confirm-pat-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition focus-visible">Login</button>
+                        </div>
+                    </div>`;
+                
+                showModal(patModal);
+                
+                document.getElementById('confirm-pat-btn').addEventListener('click', () => {
+                    const pat = document.getElementById('pat-input').value.trim();
+                    if (!pat) {
+                        showToast('Harap masukkan Personal Access Token', 'error');
+                        return;
+                    }
+                    
+                    fetch('https://api.github.com/user', {
+                        headers: {
+                            'Authorization': `token ${pat}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Token tidak valid atau tidak memiliki izin yang cukup');
+                        }
+                    })
+                    .then(userData => {
+                        accessToken = pat;
+                        sessionStorage.setItem('github_token', accessToken);
+                        sessionStorage.setItem('auth_method', 'pat');
+                        initApp();
+                        closeModal();
+                        showToast('Login berhasil!', 'success');
+                    })
+                    .catch(error => {
+                        showToast(error.message, 'error');
+                    });
+                });
+            };
+            
+            const handleLogout = () => {
+                accessToken = null;
+                sessionStorage.removeItem('github_token');
+                sessionStorage.removeItem('auth_method');
+                showView('login');
+            };
+
+            const initApp = async () => {
+                try {
+                    userData = await apiCall('/user');
+                    userElements.name.textContent = userData.login;
+                    userElements.avatar.src = userData.avatar_url;
+                    userElements.infoName.textContent = userData.name || userData.login;
+                    userElements.infoLogin.textContent = userData.login;
+                    userElements.infoAvatar.src = userData.avatar_url;
+                    
+                    userElements.email.textContent = userData.email || '-';
+                    userElements.location.textContent = userData.location || '-';
+                    userElements.company.textContent = userData.company || '-';
+                    userElements.blog.textContent = userData.blog || '-';
+                    userElements.twitter.textContent = userData.twitter_username || '-';
+                    userElements.created.textContent = new Date(userData.created_at).toLocaleDateString('id-ID');
+                    userElements.followers.textContent = userData.followers || '0';
+                    userElements.following.textContent = userData.following || '0';
+                    
+                    try {
+                        const userPlan = await apiCall('/user');
+                        userElements.plan.textContent = userPlan.plan?.name || 'Free';
+                        
+                        let allRepos = [];
+                        let page = 1;
+                        let hasMore = true;
+                        
+                        while (hasMore && page < 10) { // Limit to 10 pages to avoid infinite loops
+                            const reposPage = await apiCall(`/user/repos?per_page=100&page=${page}`);
+                            if (reposPage.length === 0) {
+                                hasMore = false;
+                            } else {
+                                allRepos = allRepos.concat(reposPage);
+                                page++;
+                            }
+                        }
+                        
+                        userElements.repos.textContent = allRepos.length > 0 ? `${allRepos.length}+` : '0';
+                    } catch (error) {
+                        console.error('Error fetching additional user info:', error);
+                        userElements.repos.textContent = userData.public_repos ? `${userData.public_repos}+` : '0';
+                    }
+                    
+                    loadStats();
+                    
+                    loadRepositoriesForBrowse();
+                    
+                    showView('dashboard');
+                } catch (error) {
+                    handleLogout();
+                }
+            };
+
+            const handlePageLoad = () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tokenFromRedirect = urlParams.get('token');
+                
+                if (tokenFromRedirect) {
+                    accessToken = tokenFromRedirect;
+                    sessionStorage.setItem('github_token', accessToken);
+                    sessionStorage.setItem('auth_method', 'oauth');
+                    window.history.replaceState({}, document.title, "/");
+                } else {
+                    accessToken = sessionStorage.getItem('github_token');
+                }
+                
+                if (accessToken) initApp();
+                else showView('login');
+            };
+            
+            const handleFileSelection = (files) => {
+                if (files.length > MAX_FILE_COUNT) {
+                    showToast(`Maksimal ${MAX_FILE_COUNT} file sekaligus`, 'error');
+                    return;
+                }
+                
+                // Check total size
+                const totalSize = Array.from(files).reduce((acc, file) => acc + file.size, 0);
+                if (totalSize > MAX_TOTAL_SIZE) {
+                    showToast(`Total ukuran file melebihi ${formatFileSize(MAX_TOTAL_SIZE)}`, 'error');
+                    return;
+                }
+                
+                selectedFiles = Array.from(files);
+                
+                // Clear previous file list
+                fileList.innerHTML = '';
+                
+                // Add files to list
+                selectedFiles.forEach((file, index) => {
+                    const isZip = file.name.toLowerCase().endsWith('.zip') || file.name.toLowerCase().endsWith('.7z');
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item bg-gray-800 rounded-md p-3 text-sm flex items-center justify-between';
+                    fileItem.innerHTML = `
+                        <div class="flex items-center gap-2 truncate">
+                            <i class="fas ${isZip ? 'fa-file-archive' : 'fa-file'} text-indigo-400"></i>
+                            <span class="truncate">${file.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-400 text-xs">${formatFileSize(file.size)}</span>
+                            <button class="text-red-400 hover:text-red-300 remove-file focus-visible" data-index="${index}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+                
+                document.querySelectorAll('.remove-file').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = parseInt(e.currentTarget.getAttribute('data-index'));
+                        selectedFiles.splice(index, 1);
+                        handleFileSelection(selectedFiles); // Refresh the list
+                    });
+                });
+                
+                filePreview.classList.remove('hidden');
+                buttons.startUpload.disabled = selectedFiles.length === 0;
+                
+                if (selectedFiles.length > 0) {
+                    dropZoneText.textContent = `${selectedFiles.length} file dipilih`;
+                }
+            };
+            
+            const openRepoSelection = async () => {
+                const repoListModal = `
+                    <div class="card w-full max-w-2xl rounded-2xl border border-gray-700 p-6 shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-white">Pilih Repositori Tujuan</h2>
+                            <button onclick="closeModal()" class="text-gray-400 text-2xl font-bold hover:text-white transition focus-visible">&times;</button>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+                            <input type="text" id="repo-search" placeholder="Cari repositori..." class="flex-1 bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible">
+                            <button id="refresh-repos-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-3 rounded-lg transition flex items-center gap-1 focus-visible">
+                                <i class="fas fa-sync-alt"></i> <span class="hidden sm:inline">Refresh</span>
+                            </button>
+                            <button id="new-repo-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-3 rounded-lg transition flex items-center gap-1 focus-visible">
+                                <i class="fas fa-plus"></i> <span class="hidden sm:inline">Baru</span>
+                            </button>
+                        </div>
+                        <div class="mb-4">
+                            <label for="branch-select" class="block text-gray-300 text-sm font-medium mb-2">Branch Tujuan</label>
+                            <select id="branch-select" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible">
+                                <option value="main">main</option>
+                                <option value="master">master</option>
+                            </select>
+                        </div>
+                        <div id="repo-list-modal" class="max-h-80 overflow-y-auto bg-gray-800 rounded-lg p-2 text-sm">
+                            <p class="text-gray-400 p-4 text-center">Memuat repositori...</p>
+                        </div>
+                    </div>`;
+                
+                showModal(repoListModal);
+                
+                const defaultBranch = document.getElementById('default-branch').value || 'main';
+                document.getElementById('branch-select').value = defaultBranch;
+                
+                try {
+                    await loadRepositories();
+                    
+                    document.getElementById('repo-search').addEventListener('input', (e) => {
+                        filterRepositories(e.target.value);
+                    });
+                    
+                    document.getElementById('refresh-repos-btn').addEventListener('click', loadRepositories);
+                    
+                    document.getElementById('new-repo-btn').addEventListener('click', () => {
+                        showCreateRepoModal();
+                    });
+                    
+                } catch (error) {
+                    document.getElementById('repo-list-modal').innerHTML = `<p class="text-red-400 p-4 text-center">Gagal memuat repositori: ${error.message}</p>`;
+                }
+            };
+            
+            const loadRepositories = async () => {
+                const repoListEl = document.getElementById('repo-list-modal');
+                repoListEl.innerHTML = '<p class="text-gray-400 p-4 text-center">Memuat repositori...</p>';
+                
+                try {
+                    let allRepos = [];
+                    let page = 1;
+                    let hasMore = true;
+                    
+                    while (hasMore && page < 10) {
+                        const reposPage = await apiCall(`/user/repos?sort=updated&per_page=100&page=${page}`);
+                        if (reposPage.length === 0) {
+                            hasMore = false;
+                        } else {
+                            allRepos = allRepos.concat(reposPage);
+                            page++;
+                        }
+                    }
+                    
+                    if (allRepos.length === 0) {
+                        repoListEl.innerHTML = '<p class="text-gray-400 p-4 text-center">Anda tidak memiliki repositori.</p>';
+                        return;
+                    }
+                    
+                    repoListEl.innerHTML = '';
+                    allRepos.forEach(repo => {
+                        const repoEl = document.createElement('div');
+                        repoEl.className = 'flex items-center justify-between p-3 hover:bg-gray-700 rounded-md cursor-pointer transition';
+                        repoEl.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <i class="fas ${repo.private ? 'fa-lock text-yellow-400' : 'fa-globe text-blue-400'}"></i>
+                                <div>
+                                    <div class="text-white font-medium">${repo.name}</div>
+                                    <div class="text-gray-400 text-xs">${repo.description || 'No description'}</div>
+                                </div>
+                            </div>
+                            <div class="text-gray-400 text-xs">
+                                ${repo.language || 'Code'}
+                            </div>
+                        `;
+                        repoEl.onclick = () => {
+                            selectedRepo = repo.full_name;
+                            selectedBranch = document.getElementById('branch-select').value;
+                            checkRepoContentAndProceed();
+                        };
+                        repoListEl.appendChild(repoEl);
+                    });
+                } catch (error) {
+                    repoListEl.innerHTML = `<p class="text-red-400 p-4 text-center">Gagal memuat repositori: ${error.message}`;
+                }
+            };
+            
+            const filterRepositories = (searchTerm) => {
+                const repoItems = document.getElementById('repo-list-modal').querySelectorAll('div.flex.items-center');
+                const term = searchTerm.toLowerCase();
+                
+                repoItems.forEach(item => {
+                    const repoName = item.querySelector('.text-white').textContent.toLowerCase();
+                    if (repoName.includes(term)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            };
+            
+            const checkRepoNameAvailability = async (repoName) => {
+                if (!userData || !repoName || repoName.length < 1) {
+                    return { available: false, message: '' };
+                }
+                
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${userData.login}/${repoName}`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (response.status === 404) {
+                        return { available: true, message: 'Nama repositori tersedia' };
+                    } else if (response.status === 200) {
+                        return { available: false, message: 'Nama repositori sudah ada' };
+                    } else {
+                        return { available: false, message: 'Terjadi kesalahan saat memeriksa' };
+                    }
+                } catch (error) {
+                    return { available: false, message: 'Error: ' + error.message };
+                }
+            };
+            
+            const showCreateRepoModal = () => {
+                const createRepoModal = `
+                    <div class="card w-full max-w-md rounded-2xl border border-gray-700 p-6 shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-white">Buat Repositori Baru</h2>
+                            <button onclick="closeModal()" class="text-gray-400 text-2xl font-bold hover:text-white transition focus-visible">&times;</button>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="repo-name" class="block text-gray-300 text-sm font-medium mb-2">Nama Repositori</label>
+                                <input type="text" id="repo-name" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible" placeholder="nama-repositori">
+                                <div id="repo-name-status" class="repo-name-status"></div>
+                            </div>
+                            <div>
+                                <label for="repo-desc" class="block text-gray-300 text-sm font-medium mb-2">Deskripsi (opsional)</label>
+                                <textarea id="repo-desc" class="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus-visible" rows="2" placeholder="Deskripsi singkat repositori"></textarea>
+                            </div>
+                            <div>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="repo-private" class="rounded border-gray-700 text-indigo-600 focus:ring-indigo-500 focus-visible">
+                                    <span class="text-gray-300 text-sm">Repositori privat</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="repo-init" class="rounded border-gray-700 text-indigo-600 focus:ring-indigo-500 focus-visible" checked>
+                                    <span class="text-gray-300 text-sm">Inisialisasi dengan README</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex gap-3">
+                            <button onclick="closeModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition focus-visible">Batal</button>
+                            <button id="create-repo-confirm-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition focus-visible" disabled>Buat</button>
+                        </div>
+                    </div>`;
+                
+                showModal(createRepoModal);
+                
+                const repoNameInput = document.getElementById('repo-name');
+                const repoNameStatus = document.getElementById('repo-name-status');
+                const createRepoBtn = document.getElementById('create-repo-confirm-btn');
+                
+                let checkTimeout;
+                
+                repoNameInput.addEventListener('input', () => {
+                    clearTimeout(checkTimeout);
+                    const repoName = repoNameInput.value.trim();
+                    
+                    if (!repoName) {
+                        repoNameStatus.textContent = '';
+                        repoNameStatus.className = 'repo-name-status';
+                        createRepoBtn.disabled = true;
+                        return;
+                    }
+                    
+                    repoNameStatus.textContent = 'Memeriksa ketersediaan...';
+                    repoNameStatus.className = 'repo-name-status repo-name-checking';
+                    
+                    checkTimeout = setTimeout(async () => {
+                        const result = await checkRepoNameAvailability(repoName);
+                        
+                        if (result.available) {
+                            repoNameStatus.textContent = result.message;
+                            repoNameStatus.className = 'repo-name-status repo-name-available';
+                            createRepoBtn.disabled = false;
+                        } else {
+                            repoNameStatus.textContent = result.message;
+                            repoNameStatus.className = 'repo-name-status repo-name-taken';
+                            createRepoBtn.disabled = true;
+                        }
+                    }, 500);
+                });
+                
+                createRepoBtn.addEventListener('click', async () => {
+                    const name = repoNameInput.value.trim();
+                    const description = document.getElementById('repo-desc').value.trim();
+                    const isPrivate = document.getElementById('repo-private').checked;
+                    const autoInit = document.getElementById('repo-init').checked;
+                    
+                    if (!name) {
+                        showToast('Nama repositori harus diisi', 'error');
+                        return;
+                    }
+                    
+                    try {
+                        const newRepo = await apiCall('/user/repos', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                name,
+                                description,
+                                private: isPrivate,
+                                auto_init: autoInit
+                            })
+                        });
+                        
+                        showToast(`Repositori "${newRepo.name}" berhasil dibuat`, 'success');
+                        selectedRepo = newRepo.full_name;
+                        
+                        closeModal();
+                        setTimeout(() => {
+                            checkRepoContentAndProceed();
+                        }, 500);
+                    } catch (error) {
+                        showToast(`Gagal membuat repositori: ${error.message}`, 'error');
+                    }
+                });
+            };
+            
+            const checkRepoContentAndProceed = async () => {
+                try {
+                    await apiCall(`/repos/${selectedRepo}/contents?ref=${selectedBranch}`);
+                    isRepoInitiallyEmpty = false;
+                } catch (error) {
+                    if (error.status === 404) {
+                        isRepoInitiallyEmpty = true;
+                    } else {
+                        showToast(`Error: ${error.message}`, 'error');
+                        closeModal();
+                        return;
+                    }
+                }
+                openFileBrowser();
+            };
+
+            const openFileBrowser = async (path = '') => {
+                const folderIcon = `<i class="fas fa-folder text-yellow-400 mr-2"></i>`;
+                const fileIcon = `<i class="fas fa-file text-gray-400 mr-2"></i>`;
+                
+                const browserModal = `
+                    <div class="card w-full max-w-2xl rounded-2xl border border-gray-700 p-6 shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-white truncate">Pilih Folder Tujuan di ${selectedRepo}</h2>
+                            <button onclick="closeModal()" class="text-gray-400 text-2xl font-bold hover:text-white transition focus-visible">&times;</button>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-gray-400 text-sm">Branch: <span class="text-white font-medium">${selectedBranch}</span></p>
+                        </div>
+                        <div id="breadcrumb-modal" class="bg-gray-800 rounded-md p-2 text-sm text-gray-400 mb-4 whitespace-nowrap overflow-x-auto flex items-center gap-1"></div>
+                        <div id="file-list-modal" class="max-h-80 overflow-y-auto bg-gray-800 rounded-lg p-2 text-sm">
+                            <p class="text-gray-400 p-4 text-center">Memuat konten...</p>
+                        </div>
+                        <div class="mt-5 flex flex-col sm:flex-row gap-3">
+                            <button onclick="setTargetFolderAndOpenExtractModal('${path}')" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-md text-sm transition flex items-center justify-center gap-2 focus-visible">
+                                <i class="fas fa-check"></i> Pilih Folder Ini
+                            </button>
+                            <button onclick="createNewFolder('${path}')" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md text-sm transition flex items-center justify-center gap-2 focus-visible">
+                                <i class="fas fa-folder-plus"></i> Folder Baru
+                            </button>
+                        </div>
+                    </div>`;
+                
+                showModal(browserModal);
+
+                const breadcrumbEl = document.getElementById('breadcrumb-modal');
+                breadcrumbEl.innerHTML = `<span class="cursor-pointer hover:text-white flex items-center gap-1" onclick="openFileBrowser('')"><i class="fas fa-home"></i> root</span>`;
+                
+                if (path) {
+                    path.split('/').filter(p => p).reduce((acc, part) => {
+                        const currentPath = `${acc}/${part}`;
+                        breadcrumbEl.innerHTML += ` <i class="fas fa-chevron-right text-xs text-gray-500"></i> <span class="cursor-pointer hover:text-white" onclick="openFileBrowser('${currentPath.substring(1)}')">${part}</span>`;
+                        return currentPath;
+                    }, '');
+                }
+
+                const fileListEl = document.getElementById('file-list-modal');
+                try {
+                    const contents = await apiCall(`/repos/${selectedRepo}/contents/${path}?ref=${selectedBranch}`);
+                    fileListEl.innerHTML = '';
+                    
+                    if (contents.length === 0) {
+                        fileListEl.innerHTML = '<p class="text-gray-400 p-4 text-center">Folder ini kosong.</p>';
+                        return;
+                    }
+                    
+                    const directories = contents.filter(item => item.type === 'dir');
+                    const files = contents.filter(item => item.type === 'file');
+                    
+                    directories.forEach(item => {
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'flex items-center p-2 hover:bg-gray-700 rounded-md transition cursor-pointer';
+                        itemEl.innerHTML = `${folderIcon}<span class="truncate">${item.name}</span>`;
+                        itemEl.onclick = () => openFileBrowser(item.path);
+                        fileListEl.appendChild(itemEl);
+                    });
+                    
+                    files.forEach(item => {
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'flex items-center p-2 hover:bg-gray-700 rounded-md transition';
+                        itemEl.innerHTML = `${fileIcon}<span class="truncate">${item.name}</span>`;
+                        fileListEl.appendChild(itemEl);
+                    });
+                } catch (error) {
+                    fileListEl.innerHTML = `<p class="text-gray-400 p-4 text-center">${error.status === 404 ? 'Folder ini kosong.' : 'Gagal memuat konten.'}</p>`;
+                }
+            };
+
+            const createNewFolder = (currentPath) => {
+                const folderName = prompt('Masukkan nama folder baru:');
+                if (!folderName) return;
+                
+                const path = currentPath ? `${currentPath}/${folderName}` : folderName;
+                const content = btoa('# Folder created by GitHub Uploader Beta Pro');
+                
+                apiCall(`/repos/${selectedRepo}/contents/${path}/.placeholder`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        message: `Create folder ${folderName}`,
+                        content: content,
+                        branch: selectedBranch
+                    })
+                })
+                .then(() => {
+                    showToast(`Folder "${folderName}" berhasil dibuat`, 'success');
+                    openFileBrowser(currentPath); 
+                })
+                .catch(error => {
+                    showToast(`Gagal membuat folder: ${error.message}`, 'error');
+                });
+            };
+
+            const setTargetFolderAndOpenExtractModal = (folder) => {
+                targetFolder = folder;
+                openAutoExtractModal();
+            };
+            
+            const openAutoExtractModal = () => {
+                filesToExtract = [];
+                const zipFiles = selectedFiles.filter(f => f.name.toLowerCase().endsWith('.zip') || f.name.toLowerCase().endsWith('.7z'));
+                
+                const fileItemsHtml = zipFiles.length > 0 ? 
+                    zipFiles.map(file => `
+                        <div onclick="toggleExtractSelection(this, '${file.name}')" class="file-to-extract-item flex items-center p-3 hover:bg-indigo-700 rounded-md cursor-pointer transition focus-visible">
+                            <div class="w-5 h-5 mr-3 border-2 border-gray-400 rounded bg-gray-700 flex-shrink-0"></div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-white truncate">${file.name}</div>
+                                <div class="text-gray-400 text-xs">${formatFileSize(file.size)}</div>
+                            </div>
+                        </div>`).join('') 
+                    : '<p class="text-gray-400 p-4 text-center">Tidak ada file kompresi (.zip, .7z) yang ditemukan.</p>';
+
+                showModal(`
+                    <div class="card w-full max-w-lg rounded-2xl border border-gray-700 p-6 shadow-2xl">
+                        <h2 class="text-xl font-bold text-white mb-4">Aktifkan Auto Ekstrak?</h2>
+                        <p class="text-gray-400 text-sm mb-4">Pilih file kompresi untuk diekstrak. File lain akan diupload seperti biasa.</p>
+                        <div class="max-h-60 overflow-y-auto bg-gray-800 rounded-lg p-2 text-sm">${fileItemsHtml}</div>
+                        <div class="mt-5 flex flex-col sm:flex-row gap-3">
+                            <button onclick="initiateUploadSequence(false)" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded-md text-sm transition focus-visible">Skip</button>
+                            <button id="confirm-extract-btn" onclick="initiateUploadSequence(true)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-md text-sm transition focus-visible" disabled>Lanjutkan</button>
+                        </div>
+                    </div>`);
+            };
+
+            const initiateUploadSequence = (shouldExtract) => {
+                if (!shouldExtract) filesToExtract = [];
+                if (isRepoInitiallyEmpty) showCachePromptModal();
+                else startUploadProcess();
+            };
+
+            const showCachePromptModal = () => {
+                showModal(`
+                    <div class="card w-full max-w-lg rounded-2xl border border-gray-700 p-8 shadow-2xl text-center">
+                         <h2 class="text-2xl font-bold text-white mb-2">Repositori Baru Terdeteksi</h2>
+                         <p class="text-gray-400 mb-6">Repositori ini kosong. Buat file "Cache" sebagai pancingan agar upload berhasil?</p>
+                         <div class="flex flex-col sm:flex-row gap-4">
+                            <button onclick="closeModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition focus-visible">Tidak</button>
+                            <button onclick="createCache()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition focus-visible">Ya, Buat Cache</button>
+                         </div>
+                    </div>`);
+            };
+
+            const createCache = async () => {
+                showView('uploading');
+                uploadStatusText.textContent = "Membuat cache pancingan...";
+                try {
+                    const content = btoa('# Cache file created by GitHub Uploader Beta Pro');
+                    await apiCall(`/repos/${selectedRepo}/contents/.cache`, {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            message: 'Create cache file',
+                            content: content,
+                            branch: selectedBranch
+                        })
+                    });
+                    
+                    showToast('Cache pancingan berhasil dibuat!', 'success');
+                    startUploadProcess();
+                } catch (error) {
+                    showModal(`<div class="card w-full max-w-lg rounded-2xl border border-gray-700 p-8 shadow-2xl text-center"><h2 class="text-2xl font-bold text-white mb-2">Pancingan Cache Gagal</h2><p class="text-gray-400 mb-6">${error.message}</p><a href="/tutorial.html" target="_blank" class="text-indigo-400 hover:text-indigo-300 transition">Lihat Caranya</a></div>`);
+                }
+            };
+            
+            const toggleExtractSelection = (element, fileName) => {
+                const checkboxDiv = element.querySelector('div');
+                if (filesToExtract.includes(fileName)) {
+                    filesToExtract = filesToExtract.filter(f => f !== fileName);
+                    element.classList.remove('selected');
+                    checkboxDiv.innerHTML = '';
+                } else {
+                    filesToExtract.push(fileName);
+                    element.classList.add('selected');
+                    checkboxDiv.innerHTML = `<svg class="w-full h-full text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
+                }
+                document.getElementById('confirm-extract-btn').disabled = filesToExtract.length === 0;
+            };
+
+            const extractZipFile = async (file) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        try {
+                            const zip = await JSZip.loadAsync(e.target.result);
+                            const files = [];
+                            let index = 0;
+                            
+                            zip.forEach(async (relativePath, zipEntry) => {
+                                if (!zipEntry.dir) {
+                                    const content = await zipEntry.async('blob');
+                                    files.push(new File([content], relativePath, { type: 'application/octet-stream' }));
+                                }
+                                index++;
+                                
+                                if (index === Object.keys(zip.files).length) {
+                                    resolve(files);
+                                }
+                            });
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    reader.onerror = reject;
+                    reader.readAsArrayBuffer(file);
+                });
+            };
+
+            const uploadFileToGitHub = async (file, path) => {
+                const filePath = targetFolder ? `${targetFolder}/${file.name}` : file.name;
+                
+                let sha = null;
+                const overwriteToggle = true;
+                
+                if (overwriteToggle) {
+                    try {
+                        const existingFile = await apiCall(`/repos/${selectedRepo}/contents/${filePath}?ref=${selectedBranch}`);
+                        sha = existingFile.sha;
+                    } catch (error) {
+                    }
+                }
+                
+                const reader = new FileReader();
+                return new Promise((resolve, reject) => {
+                    reader.onload = async function(e) {
+                        try {
+                            const content = btoa(
+                                new Uint8Array(e.target.result)
+                                    .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                            );
+                            
+                            const commitMessage = document.getElementById('commit-message').value || `Upload ${file.name}`;
+                            
+                            await apiCall(`/repos/${selectedRepo}/contents/${filePath}`, {
+                                method: 'PUT',
+                                body: JSON.stringify({
+                                    message: commitMessage,
+                                    content: content,
+                                    branch: selectedBranch,
+                                    sha: sha
+                                })
+                            });
+                            
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    reader.onerror = reject;
+                    reader.readAsArrayBuffer(file);
+                });
+            };
+
+            const startUploadProcess = async () => {
+                showView('uploading');
+                uploadStatusText.textContent = `Mengupload ${selectedFiles.length} file...`;
+                
+                uploadProgressBar.style.width = '0%';
+                uploadProgressText.textContent = '0%';
+                uploadCountText.textContent = `0/${selectedFiles.length} files`;
+                
+                try {
+                    let filesToUpload = [];
+                    
+                    for (const file of selectedFiles) {
+                        if (filesToExtract.includes(file.name) && (file.name.toLowerCase().endsWith('.zip') || file.name.toLowerCase().endsWith('.7z'))) {
+                            try {
+                                const extractedFiles = await extractZipFile(file);
+                                filesToUpload = filesToUpload.concat(extractedFiles);
+                            } catch (error) {
+                                console.error(`Gagal mengekstrak file ${file.name}:`, error);
+                                filesToUpload.push(file);
+                            }
+                        } else {
+                            filesToUpload.push(file);
+                        }
+                    }
+                    
+                    // Upload files
+                    let uploadedCount = 0;
+                    for (const file of filesToUpload) {
+                        try {
+                            if (file.size > 100 * 1024 * 1024) {
+                                showToast(`File ${file.name} melebihi batas 100MB, dilewati`, 'warning');
+                                continue;
+                            }
+                            
+                            uploadStatusText.textContent = `Mengupload: ${file.name}`;
+                            await uploadFileToGitHub(file, targetFolder);
+                            uploadedCount++;
+                            
+                            const progress = (uploadedCount / filesToUpload.length) * 100;
+                            uploadProgressBar.style.width = `${progress}%`;
+                            uploadProgressText.textContent = `${Math.round(progress)}%`;
+                            uploadCountText.textContent = `${uploadedCount}/${filesToUpload.length} files`;
+                        } catch (error) {
+                            console.error(`Gagal mengupload file ${file.name}:`, error);
+                            showToast(`Gagal mengupload ${file.name}: ${error.message}`, 'error');
+                        }
+                    }
+                    
+                    uploadStats.today += uploadedCount;
+                    uploadStats.total += uploadedCount;
+                    saveStats();
+                    
+                    showToast('Upload berhasil!', 'success');
+                    setTimeout(() => {
+                        closeModal();
+                        fileList.innerHTML = '';
+                        filePreview.classList.add('hidden');
+                        selectedFiles = [];
+                        buttons.startUpload.disabled = true;
+                        dropZoneText.textContent = 'UPLOAD FILES / ZIP';
+                    }, 1000);
+                } catch (error) {
+                    showToast(`Error: ${error.message}`, 'error');
+                }
+            };
+
+            const loadRepositoriesForBrowse = async () => {
+                browseRepoSelect.innerHTML = '<option value="">Loading repositori...</option>';
+                
+                try {
+                    let allRepos = [];
+                    let page = 1;
+                    let hasMore = true;
+                    
+                    while (hasMore && page < 10) {
+                        const reposPage = await apiCall(`/user/repos?sort=updated&per_page=100&page=${page}`);
+                        if (reposPage.length === 0) {
+                            hasMore = false;
+                        } else {
+                            allRepos = allRepos.concat(reposPage);
+                            page++;
+                        }
+                    }
+                    
+                    browseRepoSelect.innerHTML = '<option value="">Pilih Repositori</option>';
+                    allRepos.forEach(repo => {
+                        const option = document.createElement('option');
+                        option.value = repo.full_name;
+                        option.textContent = repo.name;
+                        browseRepoSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    browseRepoSelect.innerHTML = '<option value="">Gagal memuat repositori</option>';
+                    console.error('Error loading repositories:', error);
+                }
+            };
+            
+            const loadRepositoriesForPages = async () => {
+                pagesRepoSelect.innerHTML = '<option value="">Loading repositori...</option>';
+                
+                try {
+                    let allRepos = [];
+                    let page = 1;
+                    let hasMore = true;
+                    
+                    while (hasMore && page < 10) {
+                        const reposPage = await apiCall(`/user/repos?sort=updated&per_page=100&page=${page}`);
+                        if (reposPage.length === 0) {
+                            hasMore = false;
+                        } else {
+                            allRepos = allRepos.concat(reposPage);
+                            page++;
+                        }
+                    }
+                    
+                    pagesRepoSelect.innerHTML = '<option value="">Pilih Repositori</option>';
+                    allRepos.forEach(repo => {
+                        const option = document.createElement('option');
+                        option.value = repo.full_name;
+                        option.textContent = repo.name;
+                        pagesRepoSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    pagesRepoSelect.innerHTML = '<option value="">Gagal memuat repositori</option>';
+                    console.error('Error loading repositories:', error);
+                }
+            };
+            
+            const loadBranchesForBrowse = async (repo) => {
+                browseBranchSelect.innerHTML = '<option value="">Loading branches...</option>';
+                
+                try {
+                    const branches = await apiCall(`/repos/${repo}/branches`);
+                    
+                    browseBranchSelect.innerHTML = '';
+                    branches.forEach(branch => {
+                        const option = document.createElement('option');
+                        option.value = branch.name;
+                        option.textContent = branch.name;
+                        if (branch.name === 'main' || branch.name === 'master') {
+                            option.selected = true;
+                        }
+                        browseBranchSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    browseBranchSelect.innerHTML = '<option value="main">main</option>';
+                    console.error('Error loading branches:', error);
+                }
+            };
+            
+            const browseRepositoryContent = async (repo, branch, path = '') => {
+                browseContent.innerHTML = '<p class="text-gray-400 text-center py-8">Memuat konten...</p>';
+                currentBrowsePath = path;
+                
+                try {
+                    const contents = await apiCall(`/repos/${repo}/contents/${path}?ref=${branch}`);
+                    
+                    if (contents.length === 0) {
+                        browseContent.innerHTML = '<p class="text-gray-400 text-center py-8">Folder ini kosong.</p>';
+                        browseInfo.textContent = '0 items';
+                        return;
+                    }
+                    
+                    const directories = contents.filter(item => item.type === 'dir');
+                    const files = contents.filter(item => item.type === 'file');
+                    
+                    let contentHTML = '';
+                    
+                    directories.forEach(item => {
+                        contentHTML += `
+                            <div class="flex items-center p-3 hover:bg-gray-700 rounded-md transition cursor-pointer" onclick="browseRepositoryContent('${repo}', '${branch}', '${item.path}')">
+                                <i class="fas fa-folder text-yellow-400 mr-3"></i>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white truncate">${item.name}</div>
+                                    <div class="text-gray-400 text-xs">Folder</div>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        `;
+                    });
+                    
+                    files.forEach(item => {
+                        contentHTML += `
+                            <div class="flex items-center p-3 hover:bg-gray-700 rounded-md transition">
+                                <i class="fas fa-file text-gray-400 mr-3"></i>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white truncate">${item.name}</div>
+                                    <div class="text-gray-400 text-xs">${formatFileSize(item.size)}</div>
+                                </div>
+                                <div class="file-actions">
+                                    <button class="file-action-btn file-action-rename rename-file" data-path="${item.path}" data-name="${item.name}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="file-action-btn file-action-delete delete-file" data-path="${item.path}" data-name="${item.name}">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    <a href="${item.html_url}" target="_blank" class="file-action-btn file-action-view">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    browseContent.innerHTML = contentHTML;
+                    browseInfo.textContent = `${directories.length + files.length} items`;
+                    
+                    document.querySelectorAll('.rename-file').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const filePath = btn.getAttribute('data-path');
+                            const fileName = btn.getAttribute('data-name');
+                            renameFile(repo, branch, filePath, fileName);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-file').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const filePath = btn.getAttribute('data-path');
+                            const fileName = btn.getAttribute('data-name');
+                            deleteFile(repo, branch, filePath, fileName);
+                        });
+                    });
+                } catch (error) {
+                    browseContent.innerHTML = `<p class="text-gray-400 text-center py-8">${error.status === 404 ? 'Folder tidak ditemukan' : 'Gagal memuat konten'}</p>`;
+                    browseInfo.textContent = 'Error';
+                }
+            };
+
+            const renameRepository = async () => {
+                const repo = browseRepoSelect.value;
+                if (!repo) {
+                    showToast('Pilih repositori terlebih dahulu', 'error');
+                    return;
+                }
+
+                const newName = prompt(`Masukkan nama baru untuk repositori "${repo.split('/')[1]}":`);
+                if (!newName) return;
+
+                try {
+                    const response = await apiCall(`/repos/${repo}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                            name: newName
+                        })
+                    });
+
+                    showToast(`Repositori berhasil diubah menjadi "${newName}"`, 'success');
+                    loadRepositoriesForBrowse();
+                    browseRepoSelect.value = response.full_name;
+                } catch (error) {
+                    showToast(`Gagal mengubah nama repositori: ${error.message}`, 'error');
+                }
+            };
+
+            const renameFile = async (repo, branch, filePath, oldFileName) => {
+                const newFileName = prompt(`Masukkan nama baru untuk file "${oldFileName}":`);
+                if (!newFileName) return;
+
+                try {
+                    const fileContent = await apiCall(`/repos/${repo}/contents/${filePath}?ref=${branch}`);
+                    
+                    const content = atob(fileContent.content);
+                    
+                    const newFilePath = filePath.replace(oldFileName, newFileName);
+                    
+                    await apiCall(`/repos/${repo}/contents/${newFilePath}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            message: `Rename ${oldFileName} to ${newFileName}`,
+                            content: btoa(content),
+                            branch: branch
+                        })
+                    });
+                    
+                    await apiCall(`/repos/${repo}/contents/${filePath}`, {
+                        method: 'DELETE',
+                        body: JSON.stringify({
+                            message: `Remove old file ${oldFileName} after rename`,
+                            sha: fileContent.sha,
+                            branch: branch
+                        })
+                    });
+                    
+                    showToast(`File berhasil diubah menjadi "${newFileName}"`, 'success');
+                    browseRepositoryContent(repo, branch, currentBrowsePath);
+                } catch (error) {
+                    showToast(`Gagal mengubah nama file: ${error.message}`, 'error');
+                }
+            };
+
+            const deleteFile = async (repo, branch, filePath, fileName) => {
+                if (!confirm(`Apakah Anda yakin ingin menghapus file "${fileName}"?`)) {
+                    return;
+                }
+
+                try {
+                    const fileContent = await apiCall(`/repos/${repo}/contents/${filePath}?ref=${branch}`);
+
+                    // Delete the file
+                    await apiCall(`/repos/${repo}/contents/${filePath}`, {
+                        method: 'DELETE',
+                        body: JSON.stringify({
+                            message: `Delete ${fileName}`,
+                            sha: fileContent.sha,
+                            branch: branch
+                        })
+                    });
+
+                    showToast(`File "${fileName}" berhasil dihapus`, 'success');
+                    // Refresh the file list
+                    browseRepositoryContent(repo, branch, currentBrowsePath);
+                } catch (error) {
+                    showToast(`Gagal menghapus file: ${error.message}`, 'error');
+                }
+            };
+
+            const loadPagesInfo = async (repo) => {
+                if (pagesBuildingTimeout) {
+                    clearTimeout(pagesBuildingTimeout);
+                    pagesBuildingTimeout = null;
+                }
+                if (pagesPollingInterval) {
+                    clearInterval(pagesPollingInterval);
+                    pagesPollingInterval = null;
+                }
+                
+                pagesLoading.classList.remove('hidden');
+                pagesStatusContainer.classList.add('hidden');
+                pagesNotConfigured.classList.add('hidden');
+                pagesBuildingInfo.classList.add('hidden');
+                pagesUrlContainer.classList.add('hidden');
+                
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${repo}/pages`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error('NOT_FOUND');
+                        }
+                        let errorMessage = `HTTP error! status: ${response.status}`;
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = response.statusText || errorMessage;
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                    const pagesInfo = await response.json();
+                    
+                    pagesLoading.classList.add('hidden');
+                    pagesStatusContainer.classList.remove('hidden');
+                    
+                    pagesStatusBadge.className = 'status-badge';
+                    pagesStatusText.textContent = pagesInfo.status;
+                    
+                    if (pagesInfo.status === 'building') {
+                        pagesStatusBadge.classList.add('status-building');
+                        pagesStatusBadge.innerHTML = `<i class="fas fa-sync-alt fa-spin mr-1"></i><span>${pagesInfo.status}</span>`;
+                        
+                        pagesBuildingInfo.classList.remove('hidden');
+                        pagesUrlContainer.classList.add('hidden');
+                        
+                        pagesBuildingTimeout = setTimeout(() => {
+                            pagesBuildingInfo.classList.add('hidden');
+                            if (pagesInfo.html_url) {
+                                pagesUrlContainer.classList.remove('hidden');
+                                pagesUrl.href = pagesInfo.html_url;
+                                pagesUrl.textContent = pagesInfo.html_url;
+                            }
+                        }, 120000);
+                        
+                        pagesPollingInterval = setInterval(async () => {
+                            try {
+                                const updatedResponse = await fetch(`https://api.github.com/repos/${repo}/pages`, {
+                                    headers: {
+                                        'Authorization': `Bearer ${accessToken}`,
+                                        'Accept': 'application/vnd.github.v3+json'
+                                    }
+                                });
+                                
+                                if (updatedResponse.ok) {
+                                    const updatedInfo = await updatedResponse.json();
+                                    if (updatedInfo.status !== 'building') {
+                                        clearInterval(pagesPollingInterval);
+                                        pagesPollingInterval = null;
+                                        
+                                        if (updatedInfo.status === 'built' && updatedInfo.html_url) {
+                                            pagesBuildingInfo.classList.add('hidden');
+                                            pagesUrlContainer.classList.remove('hidden');
+                                            pagesUrl.href = updatedInfo.html_url;
+                                            pagesUrl.textContent = updatedInfo.html_url;
+                                        }
+                                        
+                                        pagesStatusBadge.className = 'status-badge';
+                                        if (updatedInfo.status === 'built') {
+                                            pagesStatusBadge.classList.add('status-built');
+                                            pagesStatusBadge.innerHTML = `<i class="fas fa-check-circle mr-1"></i><span>${updatedInfo.status}</span>`;
+                                        } else {
+                                            pagesStatusBadge.classList.add('status-errored');
+                                            pagesStatusBadge.innerHTML = `<i class="fas fa-exclamation-circle mr-1"></i><span>${updatedInfo.status}</span>`;
+                                        }
+                                        pagesStatusText.textContent = updatedInfo.status;
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error polling pages status:', error);
+                            }
+                        }, 30000);
+                    } else if (pagesInfo.status === 'built') {
+                        pagesStatusBadge.classList.add('status-built');
+                        pagesStatusBadge.innerHTML = `<i class="fas fa-check-circle mr-1"></i><span>${pagesInfo.status}</span>`;
+                        
+                        if (pagesInfo.html_url) {
+                            pagesUrlContainer.classList.remove('hidden');
+                            pagesUrl.href = pagesInfo.html_url;
+                            pagesUrl.textContent = pagesInfo.html_url;
+                        }
+                    } else {
+                        pagesStatusBadge.classList.add('status-errored');
+                        pagesStatusBadge.innerHTML = `<i class="fas fa-exclamation-circle mr-1"></i><span>${pagesInfo.status}</span>`;
+                    }
+                    
+                    if (pagesInfo.source) {
+                        pagesBranchSelect.value = pagesInfo.source.branch;
+                        pagesFolderSelect.value = pagesInfo.source.path;
+                    }
+                    
+                    if (pagesInfo.cname) {
+                        pagesCustomDomain.value = pagesInfo.cname;
+                    } else {
+                        pagesCustomDomain.value = '';
+                    }
+                    
+                } catch (error) {
+                    if (error.message === 'NOT_FOUND') {
+                        pagesLoading.classList.add('hidden');
+                        pagesNotConfigured.classList.remove('hidden');
+                    } else {
+                        showToast(`Gagal memuat informasi GitHub Pages: ${error.message}`, 'error');
+                        pagesLoading.classList.add('hidden');
+                    }
+                }
+            };
+            
+            const enableGitHubPages = async (repo, source = { branch: 'main', path: '/' }) => {
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${repo}/pages`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            source: source
+                        })
+                    });
+
+                    if (!response.ok) {
+                        let errorMessage = `HTTP error! status: ${response.status}`;
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = response.statusText || errorMessage;
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                    if (response.status !== 204) {
+                        await response.json();
+                    }
+
+                    showToast('Website berhasil dibuat', 'success');
+                    loadPagesInfo(repo);
+                } catch (error) {
+                    showToast(`Gagal mengCreate Website: ${error.message}`, 'error');
+                }
+            };
+            
+            const disableGitHubPages = async (repo) => {
+                if (!confirm('Apakah Anda yakin ingin Hapus website ini? Tindakan ini akan menghapus situs web Anda.')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${repo}/pages`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (response.status === 204) {
+                        showToast('Website berhasil dihapus', 'success');
+                        loadPagesInfo(repo);
+                    } else {
+                        let errorMessage = `Gagal Hapus website ini: ${response.status}`;
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            // Ignore
+                        }
+                        throw new Error(errorMessage);
+                    }
+                } catch (error) {
+                    showToast(`Gagal Hapus website ini: ${error.message}`, 'error');
+                }
+            };
+            
+            const updatePagesSource = async (repo, source) => {
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${repo}/pages`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            source: source
+                        })
+                    });
+
+                    if (!response.ok) {
+                        let errorMessage = `HTTP error! status: ${response.status}`;
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = response.statusText || errorMessage;
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                    if (response.status !== 204) {
+                        await response.json();
+                    }
+
+                    showToast('Sumber GitHub Pages berhasil diperbarui', 'success');
+                    loadPagesInfo(repo);
+                } catch (error) {
+                    showToast(`Gagal memperbarui sumber GitHub Pages: ${error.message}`, 'error');
+                }
+            };
+            
+            const updatePagesDomain = async (repo, domain) => {
+                try {
+                    let response;
+                    if (domain) {
+                        response = await fetch(`https://api.github.com/repos/${repo}/pages`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${accessToken}`,
+                                'Accept': 'application/vnd.github.v3+json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                cname: domain
+                            })
+                        });
+                    } else {
+                        response = await fetch(`https://api.github.com/repos/${repo}/pages`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${accessToken}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        });
+                    }
+
+                    if (!response.ok) {
+                        let errorMessage = `HTTP error! status: ${response.status}`;
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = response.statusText || errorMessage;
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                    if (response.status !== 204) {
+                        await response.json();
+                    }
+
+                    showToast(domain ? 'Domain kustom berhasil diperbarui' : 'Domain kustom berhasil dihapus', 'success');
+                    loadPagesInfo(repo);
+                } catch (error) {
+                    showToast(`Gagal memperbarui domain kustom: ${error.message}`, 'error');
+                }
+            };
+
+            const deleteRepository = async () => {
+                const repo = browseRepoSelect.value;
+                if (!repo) {
+                    showToast('Pilih repositori terlebih dahulu', 'error');
+                    return;
+                }
+
+                if (!confirm(`Apakah Anda yakin ingin menghapus repositori "${repo}"? Tindakan ini tidak dapat dibatalkan!`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${repo}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (response.status === 204) {
+                        showToast(`Repositori "${repo}" berhasil dihapus`, 'success');
+                        loadRepositoriesForBrowse();
+                    } else {
+                        let errorMessage = `Gagal menghapus repositori: ${response.status}`;
+                        try {
+                            const errorText = await response.text();
+                            if (errorText) {
+                                try {
+                                    const errorJson = JSON.parse(errorText);
+                                    errorMessage = errorJson.message || errorMessage;
+                                } catch (e) {
+                                    errorMessage = errorText;
+                                }
+                            }
+                        } catch (e) {
+                            errorMessage = response.statusText || errorMessage;
+                        }
+                        throw new Error(errorMessage);
+                    }
+                } catch (error) {
+                    showToast(`Gagal menghapus repositori: ${error.message}`, 'error');
+                }
+            };
+
+            Object.assign(window, { 
+                closeModal, 
+                createCache, 
+                toggleExtractSelection, 
+                initiateUploadSequence, 
+                setTargetFolderAndOpenExtractModal, 
+                openFileBrowser,
+                createNewFolder,
+                browseRepositoryContent,
+                renameFile,
+                deleteFile
+            });
+            
+            buttons.login.addEventListener('click', handleLogin);
+            buttons.patLogin.addEventListener('click', handlePatLogin);
+            buttons.logout.addEventListener('click', handleLogout);
+            buttons.clearFiles.addEventListener('click', () => {
+                selectedFiles = [];
+                fileList.innerHTML = '';
+                filePreview.classList.add('hidden');
+                buttons.startUpload.disabled = true;
+                dropZoneText.textContent = 'UPLOAD FILES / ZIP';
+            });
+            buttons.createRepo.addEventListener('click', showCreateRepoModal);
+            buttons.renameRepo.addEventListener('click', renameRepository);
+            buttons.deleteRepo.addEventListener('click', deleteRepository);
+            buttons.disablePages.addEventListener('click', () => {
+                if (pagesRepoSelect.value) {
+                    disableGitHubPages(pagesRepoSelect.value);
+                } else {
+                    showToast('Pilih repositori terlebih dahulu', 'error');
+                }
+            });
+            
+            tabs.upload.addEventListener('click', () => showTab('upload'));
+            tabs.browse.addEventListener('click', () => showTab('browse'));
+            tabs.pages.addEventListener('click', () => showTab('pages'));
+            tabs.settings.addEventListener('click', () => showTab('settings'));
+            
+            mobileTabs.upload.addEventListener('click', () => showTab('upload'));
+            mobileTabs.browse.addEventListener('click', () => showTab('browse'));
+            mobileTabs.pages.addEventListener('click', () => showTab('pages'));
+            mobileTabs.settings.addEventListener('click', () => showTab('settings'));
+            
+            browseRepoSelect.addEventListener('change', () => {
+                if (browseRepoSelect.value) {
+                    loadBranchesForBrowse(browseRepoSelect.value);
+                }
+            });
+            
+            browseBranchSelect.addEventListener('change', () => {
+                if (browseRepoSelect.value && browseBranchSelect.value) {
+                    browseRepositoryContent(browseRepoSelect.value, browseBranchSelect.value);
+                }
+            });
+            
+            buttons.refreshBrowse.addEventListener('click', () => {
+                if (browseRepoSelect.value && browseBranchSelect.value) {
+                    browseRepositoryContent(browseRepoSelect.value, browseBranchSelect.value);
+                }
+            });
+            
+            pagesRepoSelect.addEventListener('change', () => {
+                if (pagesBuildingTimeout) {
+                    clearTimeout(pagesBuildingTimeout);
+                    pagesBuildingTimeout = null;
+                }
+                if (pagesPollingInterval) {
+                    clearInterval(pagesPollingInterval);
+                    pagesPollingInterval = null;
+                }
+                
+                if (pagesRepoSelect.value) {
+                    loadPagesInfo(pagesRepoSelect.value);
+                }
+            });
+            
+            buttons.refreshPages.addEventListener('click', () => {
+                if (pagesRepoSelect.value) {
+                    loadPagesInfo(pagesRepoSelect.value);
+                }
+            });
+            
+            buttons.enablePages.addEventListener('click', () => {
+                if (pagesRepoSelect.value) {
+                    const source = {
+                        branch: 'main',
+                        path: '/'
+                    };
+                    enableGitHubPages(pagesRepoSelect.value, source);
+                } else {
+                    showToast('Pilih repositori terlebih dahulu', 'error');
+                }
+            });
+            
+            buttons.updatePagesSource.addEventListener('click', () => {
+                if (pagesRepoSelect.value) {
+                    const source = {
+                        branch: pagesBranchSelect.value,
+                        path: pagesFolderSelect.value
+                    };
+                    updatePagesSource(pagesRepoSelect.value, source);
+                } else {
+                    showToast('Pilih repositori terlebih dahulu', 'error');
+                }
+            });
+            
+            buttons.updatePagesDomain.addEventListener('click', () => {
+                if (pagesRepoSelect.value) {
+                    const domain = pagesCustomDomain.value.trim();
+                    updatePagesDomain(pagesRepoSelect.value, domain);
+                } else {
+                    showToast('Pilih repositori terlebih dahulu', 'error');
+                }
+            });
+            
+            dropZone.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => handleFileSelection(e.target.files));
+            
+            dropZone.addEventListener('dragover', (e) => { 
+                e.preventDefault(); 
+                dropZone.classList.add('drop-zone-highlight');
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drop-zone-highlight');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drop-zone-highlight');
+                handleFileSelection(e.dataTransfer.files);
+            });
+            
+            buttons.startUpload.addEventListener('click', openRepoSelection);
+            toastClose.addEventListener('click', hideToast);
+            
+            views.modalContainer.addEventListener('click', (e) => {
+                if (e.target === views.modalContainer) {
+                    closeModal();
+                }
+            });
+            
+            handlePageLoad();
+        });
+    </script>
+</body>
+</html>
