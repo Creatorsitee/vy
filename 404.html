@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Halaman Tidak Ditemukan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❌</text></svg>">
+    <style>
+      /* Animasi untuk latar belakang */
+      @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+      
+      @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+      }
+      
+      @keyframes glitch {
+        0% { transform: translate(0); }
+        20% { transform: translate(-5px, 5px); }
+        40% { transform: translate(-5px, -5px); }
+        60% { transform: translate(5px, 5px); }
+        80% { transform: translate(5px, -5px); }
+        100% { transform: translate(0); }
+      }
+      
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+        40% {transform: translateY(-20px);}
+        60% {transform: translateY(-10px);}
+      }
+      
+      /* Styling untuk elemen dengan animasi */
+      .floating {
+        animation: float 6s ease-in-out infinite;
+      }
+      
+      .pulse {
+        animation: pulse 2s ease-in-out infinite;
+      }
+      
+      .shimmer-text {
+        background: linear-gradient(90deg, #4B5563, #E5E7EB, #4B5563);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 3s infinite linear;
+      }
+      
+      .glitch-effect {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .glitch-effect:hover {
+        animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      }
+      
+      .bounce-on-hover:hover {
+        animation: bounce 1s;
+      }
+      
+      /* Background dengan partikel bergerak */
+      .bg-particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -1;
+      }
+      
+      .particle {
+        position: absolute;
+        background-color: rgba(156, 163, 175, 0.3);
+        border-radius: 50%;
+        animation: float-particle 15s infinite linear;
+      }
+      
+      @keyframes float-particle {
+        0% {
+          transform: translateY(100vh) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-100px) rotate(720deg);
+          opacity: 0;
+        }
+      }
+      
+      /* Animasi untuk tombol */
+      .btn-animated {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+      }
+      
+      .btn-animated:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: all 0.5s;
+      }
+      
+      .btn-animated:hover:before {
+        left: 100%;
+      }
+      
+      /* Animasi teks 404 */
+      @keyframes flicker {
+        0%, 18%, 22%, 25%, 53%, 57%, 100% {
+          text-shadow:
+            0 0 4px #fff,
+            0 0 11px #fff,
+            0 0 19px #fff,
+            0 0 40px #0fa,
+            0 0 80px #0fa,
+            0 0 90px #0fa,
+            0 0 100px #0fa,
+            0 0 150px #0fa;
+        }
+        20%, 24%, 55% {       
+          text-shadow: none;
+        }
+      }
+      
+      .flicker-text {
+        animation: flicker 3s infinite alternate;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <!-- Background dengan partikel -->
+    <div class="bg-particles" id="particles"></div>
+    
+    <section class="relative z-10 flex min-h-screen items-center justify-center overflow-hidden bg-transparent pb-20 pt-40">
+      <div class="mx-auto w-full max-w-[451px] text-center">
+        <div class="mb-10.5 floating">
+          <img alt="404" loading="lazy" width="451" height="240" decoding="async" style="color:transparent" src="https://static.run/images/404.svg">
+        </div>
+        <h2 class="mb-3 text-2xl font-bold text-gray-800 sm:text-3xl sm:leading-[38px] glitch-effect">
+          OPPS! Halaman Tidak Ditemukan
+        </h2>
+        <p class="mb-8 text-base text-gray-600 pulse">
+          Maaf, halaman yang Anda minta tidak dapat ditemukan
+        </p>
+        <a class="btn-animated inline-flex items-center gap-2 rounded-full bg-gray-800 px-6 py-3.5 text-sm font-medium text-white hover:bg-gray-900 transition-colors bounce-on-hover" href="/">
+          <svg class="fill-current" width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.08301 10.7428C3.08272 10.9351 3.15588 11.1274 3.30249 11.2741L8.29915 16.2743C8.59194 16.5673 9.06682 16.5674 9.35981 16.2747C9.65281 15.9819 9.65297 15.507 9.36018 15.214L5.64009 11.4913L17.1675 11.4913C17.5817 11.4913 17.9175 11.1555 17.9175 10.7413C17.9175 10.3271 17.5817 9.99129 17.1675 9.99129L5.64554 9.99129L9.36017 6.2743C9.65297 5.98132 9.65282 5.50644 9.35983 5.21364C9.06684 4.92084 8.59197 4.92099 8.29917 5.21398L3.34167 10.1746C3.18321 10.3121 3.08301 10.515 3.08301 10.7413C3.08301 10.7418 3.08301 10.7423 3.08301 10.7428Z" fill=""></path>
+          </svg>
+          Kembali ke Beranda
+        </a>
+      </div>
+    </section>
+    
+    <script>
+      // Script untuk memastikan tautan berfungsi dengan baik
+      document.addEventListener('DOMContentLoaded', function() {
+        const homeLink = document.querySelector('a[href="/"]');
+        homeLink.addEventListener('click', function(e) {
+          // Jika di GitHub Pages, pastikan kembali ke root
+          if (window.location.pathname.includes('/404.html')) {
+            e.preventDefault();
+            window.location.href = window.location.origin;
+          }
+        });
+        
+        // Membuat partikel latar belakang
+        createParticles();
+      });
+      
+      // Fungsi untuk membuat partikel bergerak di latar belakang
+      function createParticles() {
+        const container = document.getElementById('particles');
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement('div');
+          particle.classList.add('particle');
+          
+          // Ukuran acak
+          const size = Math.random() * 10 + 5;
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size}px`;
+          
+          // Posisi acak
+          const posX = Math.random() * 100;
+          particle.style.left = `${posX}%`;
+          
+          // Warna abu-abu dengan opacity acak
+          const opacity = Math.random() * 0.5 + 0.1;
+          particle.style.backgroundColor = `rgba(156, 163, 175, ${opacity})`;
+          
+          // Durasi animasi acak
+          const duration = Math.random() * 10 + 10;
+          particle.style.animationDuration = `${duration}s`;
+          
+          // Delay acak
+          const delay = Math.random() * 5;
+          particle.style.animationDelay = `${delay}s`;
+          
+          container.appendChild(particle);
+        }
+      }
+    </script>
+  </body>
+</html>
